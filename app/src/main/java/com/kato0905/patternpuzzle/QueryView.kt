@@ -28,33 +28,33 @@ class QueryView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        // 背景、半透明
-        canvas.drawColor(Color.argb(127, 0, 127, 63))
-
         var num = id_num
         Log.d("system_output", ""+id_num+"のクエリに"+query[num]+"を描画")
 
 
-        for (i in 0..query[num].size - 2) {
-            // Circle
-            paint.color = Color.argb(255, 125, 125, 255)
-            paint.strokeWidth = 5f
-            paint.isAntiAlias = true
-            paint.style = Paint.Style.STROKE
-            canvas.drawCircle(10 + query[num][i] % 3 * 30 * dp, 10 + query[num][i] / 3 * 30 * dp, 5 * dp, paint)
+        for(i in 0..query.size){
+            //RoundRect
+            paint.color = Color.argb(255, 236, 141, 83)
+            canvas.drawRoundRect(0 * dp, 0 * dp, 80 * dp, 80 * dp,10.toFloat(), 10.toFloat(), paint)
+        }
 
+
+        for (i in 0..query[num].size - 2) {
             // Lines
-            paint.strokeWidth = 5f
-            paint.color = Color.argb(255, 0, 255, 0)
-            canvas.drawLine(10 + query[num][i] % 3 * 30 * dp, 10 + query[num][i] / 3 * 30 * dp, 10 + query[num][i + 1] % 3 * 30 * dp, 10 + query[num][i + 1] / 3 * 30 * dp, paint)
+            paint.strokeWidth = 10f
+            paint.color = Color.argb(255, 73, 235, 143)
+            canvas.drawLine((10 + query[num][i] % 3 * 30) * dp, (10 + query[num][i] / 3 * 30) * dp, (10 + query[num][i + 1] % 3 * 30) * dp, (10 + query[num][i + 1] / 3 * 30) * dp, paint)
 
         }
 
-        paint.color = Color.argb(255, 125, 125, 255)
-        paint.strokeWidth = 5f
-        paint.isAntiAlias = true
-        paint.style = Paint.Style.STROKE
-        canvas.drawCircle(10 + query[num][query[num].size-1] % 3 * 30 * dp, 10 + query[num][query[num].size-1] / 3 * 30 * dp, 5 * dp, paint)
+        for(i in 0..query[num].size-1){
+            // Circle
+            paint.color = Color.argb(255, 88, 123, 244)
+            paint.strokeWidth = 5f
+            paint.isAntiAlias = true
+            paint.style = Paint.Style.FILL_AND_STROKE
+            canvas.drawCircle((10 + query[num][i] % 3 * 30) * dp, (10 + query[num][i] / 3 * 30) * dp, 5 * dp, paint)
+        }
 
 
         if(first_flag == 1) {
@@ -77,6 +77,11 @@ class QueryView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     fun next_id(num:Int){
         id_num = num
 
+    }
+
+    fun init_flag(){
+        first_flag = 1
+        id_num = 0
     }
 
 }
