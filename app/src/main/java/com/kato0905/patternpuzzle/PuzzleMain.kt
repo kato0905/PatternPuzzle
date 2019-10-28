@@ -12,6 +12,7 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver
+import android.view.animation.Animation
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -19,11 +20,34 @@ import com.itsxtt.patternlock.PatternLockView
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.max
+//import kotlin.coroutines.experimental.suspendCoroutine
+
+
 
 
 class PuzzleMain : AppCompatActivity() {
     var difficulty = 3
     var score = 0
+    var latency = 0
+    var score_rate = 1
+
+
+/*    suspend fun View.startAnimationAsync(anim: Animation) {
+
+        return suspendCoroutine { continuation ->
+            anim.setAnimationListener(object : Animation.AnimationListener {
+                override fun onAnimationStart(animation: Animation?) { }
+
+                override fun onAnimationEnd(animation: Animation?) {
+                    continuation.resume(Unit)
+                }
+
+                override fun onAnimationRepeat(animation: Animation?) { }
+            })
+
+            this.startAnimation(anim)
+        }
+    }*/
 
     class Query(){
         var content : ArrayList<Int> = arrayListOf(0, 1)
@@ -125,6 +149,7 @@ class PuzzleMain : AppCompatActivity() {
 
             var numlist = List(row_num*column_num,{i -> i})
             Collections.shuffle(numlist)
+            var canMove = false
 
             if(content_size < 2){
                 Log.d("system_output", "Error in PuzzleMain generate_random_content 1")
@@ -163,14 +188,23 @@ class PuzzleMain : AppCompatActivity() {
                     for(j in 0..content.size-1){
                         content[j] += row_num
                     }
+                    canMove = true
                 }
                 //右にずらす
                 if(content.all{ (it+1)%row_num != 0 }){
                     for(j in 0..content.size-1){
                         content[j] += 1
                     }
+                    canMove = true
                 }
             }
+
+            //描き方が1パターンでないクエリを増加させたい
+            if(canMove == false && (0..100).random() < 70){
+                generate_random_content(content_size)
+            }
+
+
         }
     }
 
@@ -205,12 +239,6 @@ class PuzzleMain : AppCompatActivity() {
                 Log.d("system_output","HAND is "+hand_content)
             }, i.toLong())
 
-            /*
-             * 0,4が同時　逆になった
-             * 3,4が同時　問題ない
-             * 2,3が同時　問題ない
-             * 1,2が同時　1が適当な形になり、2が3をコピーする
-             */
 
             val query_id = getResources().getIdentifier("query" + i, "id", "com.kato0905.patternpuzzle")
             findViewById<TextView>(query_id).text = "" + it.content
@@ -232,24 +260,29 @@ class PuzzleMain : AppCompatActivity() {
             }
 
             override fun onComplete(ids: ArrayList<Int>): Boolean {
-
+                latency = 0
+                score_rate = 1
                 var i = 1
                 query.forEach {
                     if(it.isMatch(ids)) {
+                        latency += 50
                         it.generate_random_content(difficulty)
                         var hand_id = i
                         var hand_content = it.content
                         Handler().postDelayed(Runnable {
                             queryView[hand_id - 1].make(hand_content, hand_id - 1)
                             queryView[hand_id - 1].next_id(hand_id-1)
+                            Log.d("system_output", "next_id is "+hand_id)
                             val query_view_id = getResources().getIdentifier("queryview" + hand_id, "id", "com.kato0905.patternpuzzle")
                             findViewById<com.kato0905.patternpuzzle.QueryView>(query_view_id).invalidate()
-                        }, i.toLong())
+                        }, latency.toLong())
 
                         val query_id = getResources().getIdentifier("query" + i, "id", "com.kato0905.patternpuzzle")
                         findViewById<TextView>(query_id).text = "" + it.content
 
-                        score += 100
+                        score += 100*score_rate
+                        score_rate++
+
                         findViewById<TextView>(R.id.score).text=""+score
                     }
 

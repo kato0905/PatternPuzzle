@@ -11,6 +11,8 @@ import android.view.View
 
 var query = arrayListOf(arrayListOf(0,5,8), arrayListOf(0,5,8), arrayListOf(0,5,8), arrayListOf(0,5,8), arrayListOf(0,5,8))
 var id_num = 0
+var first_flag = 1
+
 
 class QueryView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
@@ -55,10 +57,13 @@ class QueryView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         canvas.drawCircle(10 + query[num][query[num].size-1] % 3 * 30 * dp, 10 + query[num][query[num].size-1] / 3 * 30 * dp, 5 * dp, paint)
 
 
-        if(id_num >= query.size-1){
-            id_num=0
-        }else{
-            id_num++
+        if(first_flag == 1) {
+            if (id_num >= query.size - 1) {
+                first_flag = 0
+                id_num = 0
+            } else {
+                id_num++
+            }
         }
 
     }

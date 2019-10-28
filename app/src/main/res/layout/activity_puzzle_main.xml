@@ -20,6 +20,7 @@
         app:layout_constraintVertical_bias="1.0" />
 
 
+    <!-- クエリ -->
     <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content" >
@@ -89,9 +90,15 @@
 
     <com.itsxtt.patternlock.PatternLockView
         android:id="@+id/patternLockView"
+        style="@style/PatternLockView.WithIndicator"
+        plv_errorDotColor="#49eb8f"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/PatternLockView.WithIndicator"/>
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.9" />
 
 
     <TextView
