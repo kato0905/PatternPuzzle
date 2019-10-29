@@ -34,9 +34,9 @@ class PuzzleMain : AppCompatActivity() {
     var score_rate = 1
     var time = 90
 
-    //lateinit var realm: Realm
     private var mTimer: Timer? = null
     private val mHandler = Handler()
+    var stop_flag = false
 
     class Query(){
         var content : ArrayList<Int> = arrayListOf(0, 1)
@@ -207,16 +207,20 @@ class PuzzleMain : AppCompatActivity() {
     }
 
     //TODO: 音楽追加
-    //TODO: 5回に1回onResumeの初めの方が呼ばれない
 
     override fun onRestart(){
         super.onRestart()
         AlertDialog.Builder(this)
                 .setMessage("タイトルからやり直してください")
                 .setPositiveButton("確認", { dialog, which ->
-                    val intent = Intent(this, Title::class.java)
-                    finish()
-                    startActivity(intent)
+                    if(stop_flag == false) {
+                        stop_flag = true
+                        mTimer!!.cancel()
+                        mTimer = null
+                        val intent = Intent(this, Title::class.java)
+                        finish()
+                        startActivity(intent)
+                    }
                 })
                 .show()
     }
@@ -224,42 +228,36 @@ class PuzzleMain : AppCompatActivity() {
     override fun onStop(){
         super.onStop()
 
-        //realm.close()
-        Log.d("system_output","CLOSE")
-
     }
 
     override fun onBackPressed() {
-        val intent = Intent(this, Title::class.java)
-        finish()
-        startActivity(intent)
-    }
-
-    override fun onResume(){
-        super.onResume()
+        if(stop_flag == false) {
+            stop_flag = true
+            mTimer!!.cancel()
+            mTimer = null
+            val intent = Intent(this, Title::class.java)
+            finish()
+            startActivity(intent)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+    }
+
+
+    override fun onResume(){
+        super.onResume()
         setContentView(R.layout.activity_puzzle_main)
+
 
         QueryView(this, null).init_flag()
 
-        /*
-        Realm.init(this)
-
-        // Realmのセットアップ
-        val realmConfig = RealmConfiguration.Builder()
-                .deleteRealmIfMigrationNeeded()
-                .build()
-        realm = Realm.getInstance(realmConfig)
-        Log.d("system_output","OPEN")
-        */
-
+        val data = getSharedPreferences("Data", Context.MODE_PRIVATE)
+        val editor = data.edit()
 
         val query_num = getResources().getInteger(R.integer.query_num)
-        Log.d("system_output","query num is "+query_num)
 
 
         val query = Array(query_num, {Query()})
@@ -272,26 +270,10 @@ class PuzzleMain : AppCompatActivity() {
         after_layout.setVisibility(View.GONE)
         val after_background_create = ObjectAnimator.ofFloat(after_background, "alpha", 0.3f)
 
-
-        /*
-        var load_score = realm.where(ScoreModel::class.java).findFirst()
-
-        if(load_score == null){
-            realm.executeTransaction {
-                realm.insert(ScoreModel(1, "name", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
-                //realm.where(ScoreModel::class.java).findAll().deleteAllFromRealm()
-            }
-            load_score = realm.where(ScoreModel::class.java).findFirst()
-        }
+        var HighScore = data.getInt("HighScore", 0)
+        findViewById<TextView>(R.id.high_score).text = "High score:"+HighScore
 
 
-        //ハイスコア表示
-        findViewById<TextView>(R.id.high_score).text = "High score:"+load_score!!.score1
-
-        */
-
-
-        Log.d("system_output","before timer  ")
         //タイマー表示
         mTimer = Timer()
         mTimer!!.schedule(object : TimerTask() {
@@ -300,28 +282,27 @@ class PuzzleMain : AppCompatActivity() {
                     findViewById<TextView>(R.id.timer).text="Time\n"+time
                     time--
                     if(time < 0){
-                        mTimer!!.cancel()
-                        mTimer = null
-                        after_layout.setVisibility(View.VISIBLE)
-                        Handler().postDelayed(Runnable {
-                            after_background_create.duration = 500
-                            after_background_create.start()
-                        }, 0)
+                        if(stop_flag == false) {
+                            stop_flag = true
+                            mTimer!!.cancel()
+                            mTimer = null
+                            after_layout.setVisibility(View.VISIBLE)
+                            Handler().postDelayed(Runnable {
+                                after_background_create.duration = 500
+                                after_background_create.start()
+                            }, 0)
 
-                        Handler().postDelayed(Runnable{
-                            findViewById<TextView>(R.id.after_layout_scored).alpha=0.8.toFloat()
-                            findViewById<TextView>(R.id.after_layout_score).alpha=0.8.toFloat()
-                            findViewById<TextView>(R.id.after_layout_score).text = ""+score
-                        }, 500)
+                            Handler().postDelayed(Runnable {
+                                findViewById<TextView>(R.id.after_layout_scored).alpha = 0.8.toFloat()
+                                findViewById<TextView>(R.id.after_layout_score).alpha = 0.8.toFloat()
+                                findViewById<TextView>(R.id.after_layout_score).text = "" + score
+                            }, 500)
 
-                        /*
-                        //スコア保存
-                        if(load_score.score1 < score){
-                            realm.beginTransaction()
-                            load_score.score1 = score
-                            realm.commitTransaction()
+                            if (HighScore < score) {
+                                editor.putInt("HighScore", score)
+                                editor.apply()
+                            }
                         }
-                        */
                     }
                 }
             }
@@ -331,7 +312,6 @@ class PuzzleMain : AppCompatActivity() {
         /*
          *  初期クエリ表示
          */
-        Log.d("system_output","before display initial query ")
 
         var i = 1
         query.forEach {
@@ -344,7 +324,7 @@ class PuzzleMain : AppCompatActivity() {
                 val query_view_id = getResources().getIdentifier("queryview" + hand_query_id, "id", "com.kato0905.patternpuzzle")
                 findViewById<com.kato0905.patternpuzzle.QueryView>(query_view_id).invalidate()
                 Log.d("system_output","初期クエリ is "+hand_content)
-            }, i.toLong())
+            }, 0)
 
             i++
         }
@@ -356,7 +336,6 @@ class PuzzleMain : AppCompatActivity() {
             finish()
             startActivity(intent)
         }
-        Log.d("system_output","after all ")
 
 
         patternLockView.setOnPatternListener(object : PatternLockView.OnPatternListener {

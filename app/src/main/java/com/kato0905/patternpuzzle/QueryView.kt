@@ -28,6 +28,12 @@ class QueryView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
+        val query_width = width/dp
+        val query_height = width/dp
+
+        val current_query_id = getResources().getIdentifier("queryview"+id_num, "id", "com.kato0905.patternpuzzle")
+        findViewById<com.kato0905.patternpuzzle.QueryView>(current_query_id)
+
         var num = id_num
         Log.d("system_output", ""+id_num+"のクエリに"+query[num]+"を描画")
 
@@ -35,7 +41,7 @@ class QueryView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         for(i in 0..query.size){
             //RoundRect
             paint.color = Color.argb(255, 236, 141, 83)
-            canvas.drawRoundRect(0 * dp, 0 * dp, 80 * dp, 80 * dp,10.toFloat(), 10.toFloat(), paint)
+            canvas.drawRoundRect(0 * dp, 0 * dp, query_width * dp, query_height * dp, 10.toFloat(), 10.toFloat(), paint)
         }
 
 
@@ -43,7 +49,7 @@ class QueryView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
             // Lines
             paint.strokeWidth = 10f
             paint.color = Color.argb(255, 73, 235, 143)
-            canvas.drawLine((10 + query[num][i] % 3 * 30) * dp, (10 + query[num][i] / 3 * 30) * dp, (10 + query[num][i + 1] % 3 * 30) * dp, (10 + query[num][i + 1] / 3 * 30) * dp, paint)
+            canvas.drawLine((query_width/8 + query[num][i] % 3 * query_width*3/8) * dp, (query_height/8 + query[num][i] / 3 * query_height*3/8) * dp, (query_width/8 + query[num][i + 1] % 3 * query_width*3/8) * dp, (10 + query[num][i + 1] / 3 * query_width*3/8) * dp, paint)
 
         }
 
@@ -53,7 +59,7 @@ class QueryView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
             paint.strokeWidth = 5f
             paint.isAntiAlias = true
             paint.style = Paint.Style.FILL_AND_STROKE
-            canvas.drawCircle((10 + query[num][i] % 3 * 30) * dp, (10 + query[num][i] / 3 * 30) * dp, 5 * dp, paint)
+            canvas.drawCircle((query_width/8 + query[num][i] % 3 * query_width*3/8) * dp, (query_height/8 + query[num][i] / 3 * query_height*3/8) * dp, query_width/16 * dp, paint)
         }
 
 
