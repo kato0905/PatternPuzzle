@@ -6,17 +6,21 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/icon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Title">
+        <activity android:name=".Title"
+            android:screenOrientation= "portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".PuzzleMain"></activity>
+        <activity android:name=".PuzzleMain"
+            android:screenOrientation= "portrait"/>
+        <activity android:name=".Practice"
+            android:screenOrientation= "portrait"></activity>
     </application>
 
 </manifest>

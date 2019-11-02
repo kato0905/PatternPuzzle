@@ -18,8 +18,6 @@ import android.view.ViewTreeObserver
 import android.view.animation.Animation
 import android.widget.*
 import com.itsxtt.patternlock.PatternLockView
-import io.realm.Realm
-import io.realm.RealmConfiguration
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.concurrent.schedule
@@ -123,13 +121,16 @@ class PuzzleMain : AppCompatActivity() {
 
         fun ids_conversion(ids: ArrayList<Int>): ArrayList<Int>{
 
-            for(i in 0..ids.size-2){
+            var i = 0
+            while(ids.size-2-i >= 0){
                 error_array[ids[i]].forEach{
                     if(ids[i+1] == it){
                         ids.add(i+1, (ids[i]+it)/2)
                     }
                 }
+                i++
             }
+
             return ids
         }
 
@@ -210,19 +211,14 @@ class PuzzleMain : AppCompatActivity() {
 
     override fun onRestart(){
         super.onRestart()
-        AlertDialog.Builder(this)
-                .setMessage("タイトルからやり直してください")
-                .setPositiveButton("確認", { dialog, which ->
-                    if(stop_flag == false) {
-                        stop_flag = true
-                        mTimer!!.cancel()
-                        mTimer = null
-                        val intent = Intent(this, Title::class.java)
-                        finish()
-                        startActivity(intent)
-                    }
-                })
-                .show()
+        if(stop_flag == false) {
+            stop_flag = true
+            mTimer!!.cancel()
+            mTimer = null
+            val intent = Intent(this, Title::class.java)
+            finish()
+            startActivity(intent)
+        }
     }
 
     override fun onStop(){
@@ -270,6 +266,7 @@ class PuzzleMain : AppCompatActivity() {
         after_layout.setVisibility(View.GONE)
         val after_background_create = ObjectAnimator.ofFloat(after_background, "alpha", 0.3f)
 
+
         var HighScore = data.getInt("HighScore", 0)
         findViewById<TextView>(R.id.high_score).text = "High score:"+HighScore
 
@@ -281,6 +278,13 @@ class PuzzleMain : AppCompatActivity() {
                 mHandler.post {
                     findViewById<TextView>(R.id.timer).text="Time\n"+time
                     time--
+
+                    if(time < 10){
+                        //235,209,190から235,190,216
+                        //変化量0,-19,+26
+                        findViewById<android.support.constraint.ConstraintLayout>(R.id.main_layout).setBackgroundColor(Color.rgb(235,209-(10-time)*5,216+(10-time)*5))
+                    }
+
                     if(time < 0){
                         if(stop_flag == false) {
                             stop_flag = true
@@ -314,20 +318,46 @@ class PuzzleMain : AppCompatActivity() {
          */
 
         var i = 1
+        latency = 0
         query.forEach {
 
             val hand_query_id = i
             val hand_content : ArrayList<Int> = it.content
 
+            latency += 50
+
+            val move_queryId = getResources().getIdentifier("queryview" + i, "id", "com.kato0905.patternpuzzle")
+            val move_query = findViewById<com.kato0905.patternpuzzle.QueryView>(move_queryId)
+            val object_vanish = ObjectAnimator.ofFloat(move_query, "alpha", 0f)
+            val object_create = ObjectAnimator.ofFloat(move_query, "alpha", 1f)
+
+            Handler().postDelayed(Runnable {
+                object_vanish.duration=300
+                object_vanish.start()
+            }, latency.toLong())
+
+            val next_latency = latency + 300
+
             Handler().postDelayed(Runnable {
                 queryView[hand_query_id - 1].make(hand_content, hand_query_id - 1)
+
+
+                queryView[hand_query_id - 1].next_id(hand_query_id-1)
+
+
                 val query_view_id = getResources().getIdentifier("queryview" + hand_query_id, "id", "com.kato0905.patternpuzzle")
+
+
                 findViewById<com.kato0905.patternpuzzle.QueryView>(query_view_id).invalidate()
+
+                object_create.duration=300
+                object_create.start()
                 Log.d("system_output","初期クエリ is "+hand_content)
-            }, 0)
+        }, next_latency.toLong())
 
             i++
         }
+
 
         findViewById<TextView>(R.id.score).text="score\n"+score
 
@@ -362,10 +392,10 @@ class PuzzleMain : AppCompatActivity() {
                 query.forEach {
                     if(it.isMatch(ids)) {
                         //新しいクエリの作成
-                        if((0..100).random() <= 70) {
+                        if ((0..100).random() <= 70) {
                             it.generate_random_content(difficulty)
-                        }else{
-                            it.generate_random_content(difficulty+1)
+                        } else {
+                            it.generate_random_content(difficulty + 1)
                         }
                         latency += 50
 
@@ -373,33 +403,84 @@ class PuzzleMain : AppCompatActivity() {
                         val move_query = findViewById<com.kato0905.patternpuzzle.QueryView>(move_queryId)
                         val object_vanish = ObjectAnimator.ofFloat(move_query, "alpha", 0f)
                         val object_create = ObjectAnimator.ofFloat(move_query, "alpha", 1f)
+
                         val next_content = it.content
                         val current_i = i
 
                         Handler().postDelayed(Runnable {
-                            object_vanish.duration=300
+                            object_vanish.duration = 300
                             object_vanish.start()
                         }, latency.toLong())
 
                         val next_latency = latency + 300
                         Handler().postDelayed(Runnable {
                             queryView[current_i - 1].make(next_content, current_i - 1)
-                            queryView[current_i - 1].next_id(current_i-1)
-                            Log.d("system_output", "next_id is "+current_i)
+                            queryView[current_i - 1].next_id(current_i - 1)
                             val query_view_id = getResources().getIdentifier("queryview" + current_i, "id", "com.kato0905.patternpuzzle")
                             findViewById<com.kato0905.patternpuzzle.QueryView>(query_view_id).invalidate()
-                            object_create.duration=300
+                            object_create.duration = 300
                             object_create.start()
                         }, next_latency.toLong())
 
-                        score += 100*score_rate
+
+                        score += 100 * score_rate
                         score_rate *= 2
 
-                        findViewById<TextView>(R.id.score).text="score\n"+score
+                        findViewById<TextView>(R.id.score).text = "score\n" + score
+
+                        /*
+                        var evaluate_id = getResources().getIdentifier("good", "id", "com.kato0905.patternpuzzle")
+
+                        when (score_rate) {
+                            4 -> {
+                                evaluate_id = getResources().getIdentifier("good", "id", "com.kato0905.patternpuzzle")
+                            }
+
+                            8 -> {
+                                evaluate_id = getResources().getIdentifier("good", "id", "com.kato0905.patternpuzzle")
+                            }
+
+                            16 -> {
+
+                            }
+                        }
+
+                        if (score_rate >= 4) {
+
+                            val evaluate = findViewById<ImageView>(evaluate_id)
+                            val evaluate_vanish = ObjectAnimator.ofFloat(evaluate, "alpha", 0f)
+                            val evaluate_create = ObjectAnimator.ofFloat(evaluate, "alpha", 1f)
+                            val evaluate_x = ObjectAnimator.ofFloat(evaluate, "translationX", 200f)
+                            val evaluate_return_x =ObjectAnimator.ofFloat(evaluate, "translationX", 0f)
+
+                            val evaluate_y = ObjectAnimator.ofFloat(evaluate, "translationY", -20f)
+                            val evaluate_return_y = ObjectAnimator.ofFloat(evaluate, "translationY", 0f)
+
+                            Handler().postDelayed(Runnable {
+                                evaluate_create.duration = 500
+                                evaluate_create.start()
+                                evaluate_y.duration = 700
+                                evaluate_y.start()
+                            }, latency.toLong())
+
+                            Handler().postDelayed(Runnable {
+                                evaluate_vanish.duration = 300
+                                evaluate_vanish.start()
+                            }, latency+500.toLong())
+
+                            Handler().postDelayed(Runnable {
+                                evaluate_return_y.duration = 0
+                                evaluate_return_y.start()
+                            }, latency+800.toLong())
+
+
+                        }
+                        */
                     }
 
                     i++
                 }
+
 
                 //Toast.makeText(applicationContext, ""+query[0].content, Toast.LENGTH_LONG).show()
                 return false

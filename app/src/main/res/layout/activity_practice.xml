@@ -1,58 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#EBD1BE"
-    tools:context=".PuzzleMain">
+    tools:context=".Practice">
 
 
-    <!-- スコア -->
+    <!-- LEVEL -->
     <TextView
-    android:id="@+id/score"
-    android:layout_width="200dp"
-    android:layout_height="80dp"
-    android:layout_marginStart="16dp"
-    android:background="@drawable/score"
-    android:gravity="center_horizontal"
-    android:text="Score\n0"
-    android:textSize="30dp"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintVertical_bias="0.04000002" />
+        android:id="@+id/level"
+        android:layout_width="200dp"
+        android:layout_height="80dp"
+        android:layout_marginStart="16dp"
+        android:background="@drawable/score"
+        android:gravity="center_horizontal"
+        android:text="Puzzle\nLEVEL1"
+        android:textSize="30dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.04000002" />
 
     <TextView
-        android:id="@+id/high_score"
         android:layout_width="wrap_content"
         android:layout_height="30dp"
-        android:layout_marginStart="16dp"
-        android:text="High score:0"
+        android:layout_marginStart="24dp"
+        android:text="Erase 5 at the same time"
         android:textSize="15dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.17000002" />
 
-
-    <!-- タイマー -->
-    <TextView
-        android:id="@+id/timer"
-        android:layout_width="100dp"
-        android:layout_height="80dp"
-        android:layout_marginEnd="32dp"
-        android:background="@drawable/score"
-        android:gravity="center_horizontal"
-        android:text="Time\n"
-        android:textSize="30dp"
+    <Button
+        android:id="@+id/title_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Title"
+        android:background="@drawable/button"
+        android:textColor="#ffffff"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.86"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.04000002" />
-
+        app:layout_constraintVertical_bias="0.060000002" />
 
 
     <!-- クエリ -->
@@ -140,22 +134,9 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.9" />
 
-    <ImageView
-        android:id="@+id/good"
-        android:layout_width="250dp"
-        android:layout_height="wrap_content"
-        android:alpha="0"
-        android:src="@drawable/good"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.27"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.06999999" />
 
 
-
-    <!-- タイマーストップ時 -->
+    <!-- failed -->
     <android.support.constraint.ConstraintLayout
         android:id="@+id/after_layout"
         android:layout_width="match_parent"
@@ -167,37 +148,49 @@
             android:layout_height="match_parent"
             android:alpha="0"/>
 
-        <TextView
-            android:id="@+id/after_layout_scored"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Score"
-            android:textSize="40dp"
-            android:background="#EBD1BE"
-            android:textColor="#000000"
-            android:alpha="0"
-            android:gravity="center_horizontal"
+        <com.kato0905.patternpuzzle.AnswerView
+            android:id="@+id/answer_view"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:alpha = "0"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.51" />
+            app:layout_constraintVertical_bias="0.9" />
+
+        <TextView
+            android:id="@+id/after_layout_scored"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:alpha="0"
+            android:background="#EBD1BE"
+            android:gravity="center_horizontal"
+            android:text="Failed"
+            android:textColor="#000000"
+            android:textSize="40dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.43" />
 
         <TextView
             android:id="@+id/after_layout_score"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="31000"
             android:alpha="0"
             android:background="#EBD1BE"
-            android:textColor="#000000"
             android:gravity="center_horizontal"
+            android:text="Tap to Title"
+            android:textColor="#000000"
             android:textSize="40dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.64" />
+            app:layout_constraintVertical_bias="0.56" />
+
 
     </android.support.constraint.ConstraintLayout>
 

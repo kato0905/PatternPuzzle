@@ -12,6 +12,7 @@ import android.view.View
 var query = arrayListOf(arrayListOf(0,5,8), arrayListOf(0,5,8), arrayListOf(0,5,8), arrayListOf(0,5,8), arrayListOf(0,5,8))
 var id_num = 0
 var first_flag = 1
+var onDraw_flag = false
 
 
 class QueryView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
@@ -40,7 +41,7 @@ class QueryView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
         for(i in 0..query.size){
             //RoundRect
-            paint.color = Color.argb(255, 236, 141, 83)
+            paint.color = Color.argb(255, 239, 156, 106)
             canvas.drawRoundRect(0 * dp, 0 * dp, query_width * dp, query_height * dp, 10.toFloat(), 10.toFloat(), paint)
         }
 
@@ -72,12 +73,22 @@ class QueryView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
             }
         }
 
+        onDraw_flag = true
+
     }
 
     fun make(content: ArrayList<Int>, num:Int){
 
         query[num] = content
 
+    }
+
+    fun onDraw_flag_false(){
+        onDraw_flag = false
+    }
+
+    fun is_onDraw_flag(): Boolean{
+        return onDraw_flag
     }
 
     fun next_id(num:Int){
